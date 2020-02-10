@@ -1,4 +1,4 @@
-from .module import Module
+from .modules import Module
 
 
 class Sequential(Module):
@@ -9,7 +9,7 @@ class Sequential(Module):
          The resulting array is called `output`.
     """
 
-    def __init__(self):
+    def __init__(self, nn_name=None):
         super(Sequential, self).__init__()
         self.layers = []
 
@@ -60,9 +60,12 @@ class Sequential(Module):
         !!!
 
         """
+        self.gradInput = gradOutput
+        prev_outs = [layer.output for layer in reversed(self.layers)][1::]
+        prev_outs.append(input)
+        for _layer, _prev_output in zip(reversed(self.layers), prev_outs):
+            self.gradInput = _layer.backward(_prev_output, self.gradInput)
 
-        for _layer in reversed(self.layers):
-            self.gradInput = _layer.backward(input, self.gradInput)
 
         return self.gradInput
 
